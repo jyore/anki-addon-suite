@@ -14,7 +14,8 @@ import json,os
 
 conf = os.path.join(mw.pm.addonFolder(), 'ajatt_suite/repretire/config.json')
 defaults = {
-    "interval": 60
+    "interval": "60",
+    "trigger": True,
 }
 
 
@@ -29,7 +30,7 @@ class RepRetire:
         submenu.addAction(self.config_action)
 
         self.run_action = QAction("Run", mw)
-        mw.connect(self.config_action, SIGNAL("triggered()"), self.run)
+        mw.connect(self.run_action, SIGNAL("triggered()"), self.run)
         submenu.addAction(self.run_action)
 
         self.load()
@@ -58,11 +59,16 @@ class RepRetire:
         vl.addWidget(frm)
 
         il = QVBoxLayout()
-        il.addWidget(QLabel("Retire card after interval excedes:"))
+        il.addWidget(QLabel("Retire card after intervale (in days):"))
         fl = QHBoxLayout()
         field = QLineEdit()
         field.setText(self.options["interval"])
         fl.addWidget(field)
+        il.addLayout(fl)
+
+        trigger = QCheckBox("Trigger Enabled")
+        trigger.setChecked(self.options["trigger"])
+        fl.addWidget(trigger)
         il.addLayout(fl)
 
 
@@ -83,27 +89,20 @@ class RepRetire:
         if swin.exec_():
             mw.progress.start(immediate=True)
             self.options["interval"] = field.text()
+            self.options["trigger"] = trigger.isChecked()
             self.save()
             mw.progress.finish()
 
 
+    def run(self,reviewer=None,answer=None):
 
-    def run(self):
-        pass
+        if answer is None or (self.options["trigger"] and answer in [2,3,4]):
+            if reviewer != None:
+                # perform over just the answered card
+                card = reviewer.lastCard()
+                if card.ivl > int(self.options["interval"]):
+                    mw.col.sched.suspendCards([card.id])
+            else:
+                # run over all cards
+                mw.col.db.execute("update cards set queue = -1 where ivl > ?", self.options["interval"])
 
-
-## set this to the interval value in days to search for
-##deathpoint = 150
-##
-##def get_cards_to_kill():
-##    showInfo("\n".join(["%s" % i for i in mw.col.db.list("select id from cards where ivl > %s" % deathpoint)]))
-##    
-##
-##action = QAction("DEATHPOINT", mw)
-##action.triggered.connect(get_cards_to_kill)
-##mw.form.menuTools.addAction(action)
-#
-#if __name__ != "__main__":
-#    # Save a reference to the toolkit onto the mw, preventing garbage collection of PyQT objects
-#    if mw: mw.deathpoint = DeathPoint(mw)
-            #self.options.update(json.load(f))
