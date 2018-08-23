@@ -7,7 +7,9 @@ from .repretire import config as repconf
 from .easefactor import config as easeconf
 from .kanjigrid import config as kanjiconf
 
+mw.form.menuTools.addSeparator()
 menu = mw.form.menuTools.addMenu("AJATT Tool Suite")
+mw.form.menuTools.addSeparator()
 
 
 mw.repretire = repconf.RepRetire(mw,menu)
