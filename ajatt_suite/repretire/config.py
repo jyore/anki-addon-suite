@@ -10,6 +10,14 @@ from aqt.webview import AnkiWebView
 from anki.utils import ids2str
 
 
+import json,os
+
+conf = os.path.join(mw.pm.addonFolder(), 'ajatt_suite/repretire/config.json')
+defaults = {
+    "interval": 60
+}
+
+
 
 class RepRetire:
 
@@ -17,84 +25,73 @@ class RepRetire:
         submenu = menu.addMenu("Rep Retire")
 
         self.config_action = QAction("Configure", mw)
-        mw.connect(self.config_action, SIGNAL("triggered()"), self.setup)
+        mw.connect(self.config_action, SIGNAL("triggered()"), self.config)
         submenu.addAction(self.config_action)
 
         self.run_action = QAction("Run", mw)
         mw.connect(self.config_action, SIGNAL("triggered()"), self.run)
         submenu.addAction(self.run_action)
 
+        self.load()
 
-    def setup(self):
-        pass
+
+    def save(self):
+        with open(conf,'w') as f:
+            f.write(json.dumps(self.options))
+
+
+    def load(self):
+        self.options = defaults.copy()
+
+        with open(conf,'r') as f:
+            try:
+                self.options.update(json.load(f))
+            except Exception as e:
+                pass
+
+
+    def config(self):
+
+        swin = QDialog(mw)
+        vl   = QVBoxLayout()
+        frm  = QGroupBox("Configre")
+        vl.addWidget(frm)
+
+        il = QVBoxLayout()
+        il.addWidget(QLabel("Retire card after interval excedes:"))
+        fl = QHBoxLayout()
+        field = QLineEdit()
+        field.setText(self.options["interval"])
+        fl.addWidget(field)
+        il.addLayout(fl)
+
+
+        hl = QHBoxLayout()
+        save = QPushButton("Save")
+        save.connect(save, SIGNAL("clicked()"), swin, SLOT("accept()"))
+        cancel = QPushButton("Cancel")
+        cancel.connect(cancel, SIGNAL("clicked()"), swin, SLOT("reject()"))
+        hl.addWidget(cancel)
+        hl.addWidget(save)
+        vl.addLayout(hl)
+
+        frm.setLayout(il)
+        swin.setLayout(vl)
+        swin.resize(500, 400)
+
+
+        if swin.exec_():
+            mw.progress.start(immediate=True)
+            self.options["interval"] = field.text()
+            self.save()
+            mw.progress.finish()
+
 
 
     def run(self):
         pass
 
 
-#_interval = "60"
-#
-#class DeathPoint:
-#
-#    def __init__(self,mw):
-#        submenu = mw.form.menuTools.addMenu("DeathPoint")
-#        
-#        
-#        self.config_action = QAction("Configure", mw)
-#        mw.connect(self.config_action, SIGNAL("triggered()"), self.setup)
-#        submenu.addAction(self.config_action)
-#
-#        self.run_action = QAction("Run", mw)
-#        mw.connect(self.config_action, SIGNAL("triggered()"), self.run)
-#        submenu.addAction(self.run_action)
-#
-#
-#
-#
-#    def setup(self):
-#        global _interval
-#
-#        swin = QDialog(mw)
-#        vl   = QVBoxLayout()
-#        frm  = QGroupBox("Settings")
-#        vl.addWidget(frm)
-#
-#
-#        il = QVBoxLayout()
-#        il.addWidget(QLabel("Retire card after intveral excedes"))
-#        fl = QHBoxLayout()
-#        field = QLineEdit()
-#        field.setText(_interval)
-#        fl.addWidget(field)
-#        il.addLayout(fl)
-#
-#
-#        hl = QHBoxLayout()
-#        save = QPushButton("Save")
-#        save.connect(save, SIGNAL("clicked()"), swin, SLOT("accept()"))
-#        cancel = QPushButton("Cancel")
-#        cancel.connect(cancel, SIGNAL("clicked()"), swin, SLOT("reject()"))
-#        hl.addWidget(cancel)
-#        hl.addWidget(save)
-#        vl.addLayout(hl)
-#
-#
-#        frm.setLayout(il)
-#        swin.setLayout(vl)
-#        swin.resize(500, 400)        
-#
-#        if swin.exec_():
-#            showInfo(field.text())
-#            mw.progress.start(immediate=True)
-#            _interval = field.text()
-#            mw.progress.finish()
-#
-#
-#    def run(self):
-#        pass
-#
-#
 ## set this to the interval value in days to search for
 ##deathpoint = 150
 ##
@@ -109,3 +106,4 @@ class RepRetire:
 #if __name__ != "__main__":
 #    # Save a reference to the toolkit onto the mw, preventing garbage collection of PyQT objects
 #    if mw: mw.deathpoint = DeathPoint(mw)
+            #self.options.update(json.load(f))

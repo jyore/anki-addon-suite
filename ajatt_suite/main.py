@@ -6,6 +6,6 @@ from .easefactor import config as easeconf
 from .kanjigrid import config as kanjiconf
 
 menu = mw.form.menuTools.addMenu("AJATT Tool Suite")
-repconf.RepRetire(mw,menu)
+mw.repretire = repconf.RepRetire(mw,menu)
 easeconf.EaseFactor(mw,menu)
 kanjiconf.KanjiGrid(mw,menu)
