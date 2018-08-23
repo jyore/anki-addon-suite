@@ -1,16 +1,11 @@
+import json,os
 from aqt import mw
 from aqt.qt import *
-from aqt.utils import showInfo
-from anki.hooks import addHook
-
-
-# need?
-from anki.js import jquery
-from aqt.webview import AnkiWebView
+from aqt.utils import showInfo,tooltip
+from anki.lang import ngettext
 from anki.utils import ids2str
 
 
-import json,os
 
 conf = os.path.join(mw.pm.addonFolder(), 'ajatt_suite/repretire/config.json')
 defaults = {
@@ -85,7 +80,6 @@ class RepRetire:
         swin.setLayout(vl)
         swin.resize(500, 400)
 
-
         if swin.exec_():
             mw.progress.start(immediate=True)
             self.options["interval"] = field.text()
@@ -101,8 +95,23 @@ class RepRetire:
                 # perform over just the answered card
                 card = reviewer.lastCard()
                 if card.ivl > int(self.options["interval"]):
-                    mw.col.sched.suspendCards([card.id])
+                    ids = [card.id]
+                    nids = [card.nid]
+                    message = "Retired card"
+                else:
+                    ids = []
+                    nids = []
+                    message = None
             else:
-                # run over all cards
-                mw.col.db.execute("update cards set queue = -1 where ivl > ?", self.options["interval"])
+                # run over all cards, greater than threshold, not suspended already
+                ids_and_nids = mw.col.db.all("select id,nid from cards where queue != -1 and ivl > ?", self.options["interval"])
+                ids = [i[0] for i in ids_and_nids]
+                nids = [i[1] for i in ids_and_nids]
+                message = "Retired %s cards" % len(ids_and_nids)
 
+            if len(ids) > 0:
+              mw.col.tags.bulkAdd(nids, _("retired"))
+              mw.col.sched.suspendCards(ids)
+
+            if message:
+              tooltip(message)
