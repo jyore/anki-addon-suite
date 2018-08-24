@@ -3,15 +3,9 @@ from aqt.qt import *
 
 
 
-from . import passfail
+from . import passfail,easeassistant
 
-conf = os.path.join(mw.pm.addonFolder(), 'anki_suite/reviewmanager/config.json')
-defaults = {
-    "interval": "60",
-    "trigger": True,
-    "action": 0,
-    "delete_suspended": False,
-}
+
 
 class ReviewManager:
 
@@ -19,5 +13,6 @@ class ReviewManager:
         submenu = menu.addMenu("Review Manager")
 
         mw.passfail = passfail.PassFail(mw,submenu)
+        mw.easeassistant = easeassistant.EaseAssistant(mw,submenu)
 
 

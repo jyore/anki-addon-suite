@@ -34,7 +34,7 @@ remap = {
 
 buttons = [
   '<b style="color:#c33">%s</b>' % _("Again"),
-  '<b style="color:#3c3">%s</b>' % _("Good")
+  '<b style="color:#008000">%s</b>' % _("Good")
 ]
 
 full_width = '99%'
