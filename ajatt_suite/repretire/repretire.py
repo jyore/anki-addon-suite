@@ -1,13 +1,18 @@
-import json,os
-from aqt import mw
-from aqt.qt import *
-from aqt.utils import showInfo,tooltip
+import os
+
 from anki.lang import ngettext
 from anki.utils import ids2str
+from anki.hooks import wrap
+from aqt import mw
+from aqt.qt import *
+from aqt.reviewer import Reviewer
+from aqt.utils import tooltip
 
 
+from .. import config as cfg
 
-conf = os.path.join(mw.pm.addonFolder(), 'ajatt_suite/repretire/config.json')
+
+path = os.path.join(mw.pm.addonFolder(), 'ajatt_suite/repretire/config.json')
 defaults = {
     "interval": "60",
     "trigger": True,
@@ -30,26 +35,16 @@ class RepRetire:
         mw.connect(self.run_action, SIGNAL("triggered()"), self.run)
         submenu.addAction(self.run_action)
 
-        self.load()        
+        self.options = cfg.Config(path,defaults)
+        self.options.load()
+
+        Reviewer._answerCard = wrap(Reviewer._answerCard, self.run, "after")
+        
 
 
     def restore(self):
-        self.options.update(defaults)
+        self.options.reset()
         self.populate_settings()
-
-    def save(self):
-        with open(conf,'w') as f:
-            f.write(json.dumps(self.options))
-
-
-    def load(self):
-        self.options = defaults.copy()
-
-        with open(conf,'r') as f:
-            try:
-                self.options.update(json.load(f))
-            except Exception as e:
-                pass
 
 
     def populate_settings(self):
@@ -85,13 +80,13 @@ class RepRetire:
         layout.addWidget(self.create_layout())
         self.swin.setLayout(layout)
 
-        self.load()
+        self.options.load()
         self.populate_settings()
 
         if self.swin.exec_():
             mw.progress.start(immediate=True)
             self.update_settings()
-            self.save()
+            self.options.save()
             mw.progress.finish()
 
 

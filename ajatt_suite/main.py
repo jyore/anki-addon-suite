@@ -1,10 +1,9 @@
 from aqt import mw
 from aqt.qt import *
-from aqt.reviewer import Reviewer
-from anki.hooks import wrap
 
-from .repretire import config as repconf
-from .easefactor import config as easeconf
+
+from .repretire import repretire
+from .reviewmanager import config as revconf
 from .kanjigrid import config as kanjiconf
 
 mw.form.menuTools.addSeparator()
@@ -12,8 +11,7 @@ menu = mw.form.menuTools.addMenu("AJATT Tool Suite")
 mw.form.menuTools.addSeparator()
 
 
-mw.repretire = repconf.RepRetire(mw,menu)
-Reviewer._answerCard = wrap(Reviewer._answerCard, mw.repretire.run, "after")
+mw.repretire = repretire.RepRetire(mw,menu)
 
-easeconf.EaseFactor(mw,menu)
+revconf.ReviewManager(mw,menu)
 kanjiconf.KanjiGrid(mw,menu)
