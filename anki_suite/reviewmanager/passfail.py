@@ -13,7 +13,7 @@ from aqt.utils import showInfo,tooltip
 from .. import config as cfg
 
 
-path = os.path.join(mw.pm.addonFolder(), 'ajatt_suite/reviewmanager/passfail_config.json')
+path = os.path.join(mw.pm.addonFolder(), 'anki_suite/reviewmanager/passfail_config.json')
 defaults = {
      "enabled": True
 }
@@ -33,8 +33,8 @@ remap = {
 }
 
 buttons = [
-  '<b style="color:#c33">外れ</b>',
-  '<b style="color:#3c3">当たり</b>'
+  '<b style="color:#c33">%s</b>' % _("Again"),
+  '<b style="color:#3c3">%s</b>' % _("Good")
 ]
 
 full_width = '99%'
@@ -148,7 +148,7 @@ class PassFail:
             else:
                 extra = ''
             due = obj._buttonTime(i)
-            return '''<td align="center" style="width:%s">%s<button %s %s onclick='py.link("ease%d");'>%s</button></td>''' % (
+            return '''<td align="center" style="line-height:14px;width:%s">%s<button %s %s onclick='py.link("ease%d");'>%s</button></td>''' % (
                 width,
                 due,
                 extra,

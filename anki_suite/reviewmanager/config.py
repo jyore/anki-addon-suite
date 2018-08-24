@@ -5,7 +5,7 @@ from aqt.qt import *
 
 from . import passfail
 
-conf = os.path.join(mw.pm.addonFolder(), 'ajatt_suite/reviewmanager/config.json')
+conf = os.path.join(mw.pm.addonFolder(), 'anki_suite/reviewmanager/config.json')
 defaults = {
     "interval": "60",
     "trigger": True,

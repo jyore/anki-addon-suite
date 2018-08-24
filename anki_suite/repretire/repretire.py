@@ -12,7 +12,7 @@ from aqt.utils import tooltip
 from .. import config as cfg
 
 
-path = os.path.join(mw.pm.addonFolder(), 'ajatt_suite/repretire/config.json')
+path = os.path.join(mw.pm.addonFolder(), 'anki_suite/repretire/config.json')
 defaults = {
     "interval": "60",
     "trigger": True,
@@ -180,21 +180,22 @@ class RepRetire:
                 nids = [i[1] for i in ids_and_nids]
 
 
-            retired_card = False
             if self.options["action"] == 0:
-                retired_card = self.suspend(nids)
+                self.tag(nids)
+                if self.suspend(nids):
+                    tooltip(ngettext("Retired %d Card", "Retired %d Cards", len(ids)) % len(ids))
 
-            if self.options["action"] in [0,1]:
-                retired_card = self.tag(nids)
 
-            if self.options["action"] == 2:
+            elif self.options["action"] == 1:
+                if self.tag(nids):
+                    tooltip(ngettext("Retired %d Card", "Retired %d Cards", len(ids)) % len(ids))
+
+
+            elif self.options["action"] == 2:
                 if self.options["delete_suspended"]:
                     ids.extend(i[0] for i in mw.col.db.all("select id from cards where queue = -1 and ivl >= ?", self.options["interval"]))
-
-                retired_card = self.delete(ids)
-
-            if retired_card:
-                self.generate_tooltip(len(ids))
+                if self.delete(ids):
+                    tooltip(ngettext("Deleted %d Card", "Deleted %d Cards", len(ids)) % len(ids))
 
 
 
@@ -222,11 +223,3 @@ class RepRetire:
 
         mw.col.remCards(ids)
         return True
-
-
-
-    def generate_tooltip(self,length):
-        if length == 1:
-            tooltip("Retired Card")
-        elif length > 1:
-            tooltip("Retired %d Cards" % length)
