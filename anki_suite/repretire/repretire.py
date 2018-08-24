@@ -14,7 +14,7 @@ from .. import config as cfg
 
 path = os.path.join(mw.pm.addonFolder(), 'anki_suite/repretire/config.json')
 defaults = {
-    "interval": "60",
+    "interval": "65",
     "trigger": True,
     "action": 0,
     "delete_suspended": False,
