@@ -11,7 +11,7 @@ menu = mw.form.menuTools.addMenu("AJATT Tool Suite")
 mw.form.menuTools.addSeparator()
 
 
+mw.revconf = revconf.ReviewManager(mw,menu)
 mw.repretire = repretire.RepRetire(mw,menu)
 
-revconf.ReviewManager(mw,menu)
 kanjiconf.KanjiGrid(mw,menu)
